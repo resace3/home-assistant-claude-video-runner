@@ -1,0 +1,87 @@
+name: Personal Video Runner (Claude)
+version: "0.1.0"
+slug: claude_video_runner
+description: Privacy-first daily and weekly video generator for Personal Video Studio, driven by the Claude Code CLI
+url: https://github.com/resace3/home-assistant-claude-video-runner
+arch:
+  - aarch64
+  - amd64
+image: ghcr.io/resace3/home-assistant-claude-video-runner
+init: false
+homeassistant_api: true
+map:
+  - type: share
+    read_only: false
+  - type: homeassistant_config
+    read_only: false
+options:
+  run_demo_on_start: false
+  generate_personal_on_start: true
+  allow_external_tts: false
+  daily_time: "06:15"
+  weekly_day: 6
+  weekly_time: "06:30"
+  storyboard_provider: claude
+  claude_model: claude-opus-5
+  claude_config_dir: /homeassistant/.claude-video-runner
+  claude_timeout_seconds: 300
+  story_detail: personal
+  video_id_namespace: claude
+  auto_discover_sensors: true
+  include_binary_sensors: true
+  entity_allowlist: []
+  max_discovered_entities: 2000
+  history_hours_daily: 24
+  history_days_weekly: 7
+  history_batch_size: 20
+  max_observations_per_entity: 512
+  max_response_bytes: 10000000
+  max_highlights: 5
+  render_width: 720
+  render_height: 1280
+  render_fps: 24
+  render_preset: veryfast
+  video_style: engaging
+  video_energy: balanced
+  motion_level: medium
+  music_enabled: true
+  sound_effects_enabled: true
+  captions_style: animated
+  video_theme: adaptive
+  motion_sample_fps: 8
+schema:
+  run_demo_on_start: bool
+  generate_personal_on_start: bool
+  allow_external_tts: bool
+  daily_time: 'match(^(?:[01]\d|2[0-3]):[0-5]\d$)'
+  weekly_day: "int(0,6)"
+  weekly_time: 'match(^(?:[01]\d|2[0-3]):[0-5]\d$)'
+  storyboard_provider: "list(claude|offline)"
+  claude_model: str
+  claude_config_dir: str
+  claude_timeout_seconds: "int(60,900)"
+  story_detail: "list(personal|aggregate)"
+  video_id_namespace: 'match(^$|^[a-z0-9]([a-z0-9-]*[a-z0-9])?$)'
+  auto_discover_sensors: bool
+  include_binary_sensors: bool
+  entity_allowlist:
+    - str
+  max_discovered_entities: "int(1,5000)"
+  history_hours_daily: "int(1,168)"
+  history_days_weekly: "int(1,31)"
+  history_batch_size: "int(1,100)"
+  max_observations_per_entity: "int(8,2048)"
+  max_response_bytes: "int(64000,20000000)"
+  max_highlights: "int(3,5)"
+  render_width: "int(240,1080)"
+  render_height: "int(426,1920)"
+  render_fps: "int(12,30)"
+  render_preset: "list(ultrafast|superfast|veryfast|faster|fast|medium)"
+  video_style: "list(engaging|calm|minimal)"
+  video_energy: "list(calm|balanced|bright)"
+  motion_level: "list(low|medium|high)"
+  music_enabled: bool
+  sound_effects_enabled: bool
+  captions_style: "list(animated|standard|off)"
+  video_theme: "list(adaptive|indigo|teal|slate)"
+  motion_sample_fps: "int(4,12)"

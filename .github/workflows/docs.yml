@@ -1,0 +1,16 @@
+name: Documentation
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  docs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - run: npx --yes markdownlint-cli2@0.18.1 '**/*.md'
+      - run: grep -q 'SUPERVISOR_TOKEN' README.md && grep -q 'not a medical device' README.md
+

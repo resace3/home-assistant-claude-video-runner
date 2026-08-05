@@ -1,0 +1,56 @@
+video_directory: /share/personal_video_studio
+private_data_directory: /data/personal_video_studio
+data:
+  auto_discover_sensors: true
+  include_binary_sensors: true
+  entity_allowlist: []
+  max_discovered_entities: 2000
+  history_hours_daily: 24
+  history_days_weekly: 7
+  history_batch_size: 20
+  max_observations_per_entity: 512
+  max_response_bytes: 10000000
+  max_highlights: 5
+  include_raw_values_in_external_requests: false
+  anonymize_entity_names: true
+generation:
+  # claude drives the local Claude Code CLI with your Max subscription login; offline
+  # uses the built-in template selector and makes no model call at all.
+  provider: claude
+  claude_binary: claude
+  # Shared with the SSH add-on so one credential store is used and OAuth refresh writes
+  # land in one place. Log in once with `claude` from a terminal pointed at this path.
+  claude_config_dir: /homeassistant/.claude-video-runner
+  claude_home_dir: /data/personal_video_studio/claude-home
+  model: claude-opus-5
+  timeout_seconds: 300
+  # personal sends your real signal names, values and trends to the local CLI.
+  # aggregate sends counts only and produces a generic story.
+  story_detail: personal
+  offline_fallback: true
+  # Prefixes the catalog id (daily-claude-2026-08-05) so this add-on can publish into
+  # the same /share directory as another one without overwriting its catalog entry.
+  # Set to "" once the other add-on is retired to get un-namespaced ids back.
+  video_id_namespace: claude
+tts:
+  provider: edge
+  requested_voice_name: "Libby, British Warm"
+  requested_voice_id: en-GB-LibbyNeural
+  fallback_voice_name: ""
+  allow_fallback: false
+  allow_external_egress: false
+  speaking_rate: 1.0
+  output_format: mp3
+render:
+  width: 720
+  height: 1280
+  fps: 24
+  preset: medium
+  style: engaging
+  energy: balanced
+  motion_level: medium
+  music_enabled: true
+  sound_effects_enabled: true
+  captions_style: animated
+  theme: adaptive
+  motion_sample_fps: 8

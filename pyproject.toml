@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "home-assistant-claude-video-runner"
+version = "0.1.0"
+description = "Privacy-first personalized MoviePy video runner for Home Assistant, driven by the Claude Code CLI"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "Apache-2.0"}
+dependencies = [
+  "edge-tts==7.2.7",
+  "httpx==0.28.1",
+  "imageio-ffmpeg==0.6.0",
+  "moviepy @ https://github.com/Zulko/moviepy/archive/7ffa4f00376237137a25fe1c777355c37753e9af.tar.gz",
+  "numpy==2.2.6",
+  "pillow==12.3.0",
+  "pydantic==2.11.7",
+  "PyYAML==6.0.2",
+  "typer==0.16.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "bandit==1.8.5",
+  "mypy==1.16.1",
+  "pip-audit==2.9.0",
+  "pytest==9.0.3",
+  "pytest-cov==6.2.1",
+  "pytest-httpx==0.36.2",
+  "ruff==0.12.2",
+]
+
+[project.scripts]
+video-runner = "video_runner.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/video_runner"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "S", "UP", "B"]
+ignore = ["E501", "S101", "S603", "S607"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers --cov=video_runner --cov-report=term-missing --cov-fail-under=60"
+testpaths = ["tests"]
+markers = ["integration: generates and decodes real media"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+disable_error_code = ["import-untyped"]

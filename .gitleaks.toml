@@ -1,0 +1,28 @@
+title = "Personal Video Studio runner secret policy"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "home-assistant-token"
+description = "Potential Home Assistant bearer token"
+regex = '''(?i)(SUPERVISOR_TOKEN|Authorization)\s*[:=]\s*(Bearer\s+)?[A-Za-z0-9._-]{32,}'''
+tags = ["key", "home-assistant"]
+
+[[rules]]
+id = "anthropic-key"
+description = "Anthropic API key or Claude Code OAuth token"
+regex = '''sk-ant-[A-Za-z0-9_-]{16,}'''
+tags = ["key", "anthropic", "claude"]
+
+[[rules]]
+id = "claude-code-credentials"
+description = "Claude Code credential store contents"
+regex = '''(?i)"(accessToken|refreshToken|access_token|refresh_token)"\s*:\s*"[A-Za-z0-9._~+/-]{16,}"'''
+tags = ["key", "claude", "oauth"]
+
+[[rules]]
+id = "nabu-casa-url"
+description = "Nabu Casa remote instance URL"
+regex = '''[A-Za-z0-9]{8,}\.ui\.nabu\.casa'''
+tags = ["url", "home-assistant", "private"]
