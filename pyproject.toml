@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "Apache-2.0"}
 dependencies = [
-  "edge-tts==7.2.7",
+  "edge-tts==7.2.8",
   "httpx==0.28.1",
   "imageio-ffmpeg==0.6.0",
   "moviepy @ https://github.com/Zulko/moviepy/archive/7ffa4f00376237137a25fe1c777355c37753e9af.tar.gz",
