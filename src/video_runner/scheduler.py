@@ -278,8 +278,15 @@ def run_scheduler(config_path: Path, schedule_path: Path, *, poll_seconds: int =
             state = json.loads(state_path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             state = {}
-    with render_lock(settings.video_directory):
-        rebuild_indexes(settings.video_directory)
+    try:
+        with render_lock(settings.video_directory):
+            rebuild_indexes(settings.video_directory)
+    except RuntimeError as exc:
+        # A render killed mid-encode — an OOM kill is the usual cause on small
+        # hosts — leaves its lock behind until the staleness window expires. The
+        # index rebuild is a convenience, so refusing to schedule anything for
+        # the rest of that window turns one dead render into hours of downtime.
+        LOGGER.warning("skipping startup index rebuild: %s", redact(exc)[:200])
     _run_startup_generation(settings, schedule, config_path)
     while True:
         now = datetime.now().astimezone()

@@ -750,3 +750,56 @@ def test_libby_uses_natural_rate_and_rejects_speedup(
     assert seen == {"voice": "en-GB-LibbyNeural", "rate": "+0%"}
     with pytest.raises(ValidationError):
         TTSConfig(speaking_rate=1.01)
+
+
+def test_a_stale_render_lock_does_not_prevent_the_scheduler_from_starting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A render killed mid-encode leaves its lock behind for the staleness window.
+
+    Observed on a 4GB Home Assistant Green, where an OOM kill during MoviePy
+    encoding is the realistic cause. The startup index rebuild used to take that
+    lock unguarded, so the scheduler raised before reaching its loop and the
+    add-on sat in an error state for hours instead of just running.
+    """
+    from video_runner import scheduler as scheduler_module
+
+    video_root = tmp_path / "share" / "personal_video_studio"
+    private_root = tmp_path / "private"
+    for directory in (video_root, private_root):
+        directory.mkdir(parents=True, exist_ok=True)
+    (video_root / ".render.lock").write_text("1", encoding="utf-8")  # held by a dead render
+
+    config = tmp_path / "config.yaml"
+    config.write_text(
+        f"video_directory: {video_root.as_posix()}\n"
+        f"private_data_directory: {private_root.as_posix()}\n",
+        encoding="utf-8",
+    )
+    schedule = tmp_path / "schedule.json"
+    schedule.write_text(
+        json.dumps(
+            {
+                "run_demo_on_start": False,
+                "generate_personal_on_start": False,
+                "daily_time": "06:15",
+                "weekly_day": 6,
+                "weekly_time": "06:30",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    reached_loop = False
+
+    def stop_after_first_poll(_seconds: float) -> None:
+        nonlocal reached_loop
+        reached_loop = True
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(scheduler_module.time, "sleep", stop_after_first_poll)
+
+    with pytest.raises(KeyboardInterrupt):
+        scheduler_module.run_scheduler(config, schedule)
+
+    assert reached_loop, "scheduler never reached its polling loop"

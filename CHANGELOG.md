@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.3 - 2026-08-05
+
+Found while verifying the add-on on a live Home Assistant Green.
+
+- A render killed mid-encode leaves its lock file behind until the two-hour
+  staleness window expires. The scheduler's startup index rebuild took that lock
+  unguarded, so it raised before reaching its polling loop and the add-on sat in
+  an error state for the rest of the window instead of simply scheduling the
+  next run. On a 4GB host where an OOM kill during MoviePy encoding is a
+  realistic outcome, one dead render became hours of downtime. The rebuild is a
+  convenience and is now best-effort.
+
 ## 0.1.2 - 2026-08-05
 
 Two defects found by running the real Claude Code CLI against the provider
