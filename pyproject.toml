@@ -14,7 +14,7 @@ dependencies = [
   "httpx==0.28.1",
   "imageio-ffmpeg==0.6.0",
   "moviepy @ https://github.com/Zulko/moviepy/archive/7ffa4f00376237137a25fe1c777355c37753e9af.tar.gz",
-  "numpy==2.2.6",
+  "numpy==2.5.1",
   "pillow==12.3.0",
   "pydantic==2.11.7",
   "PyYAML==6.0.2",
