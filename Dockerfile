@@ -43,6 +43,14 @@ RUN set -eux; \
     apt-get purge -y --auto-remove curl xz-utils; \
     rm -rf /var/lib/apt/lists/*
 
+# Declare the text encoding rather than inheriting whatever the base image's
+# locale resolves to. Narration carries curly quotes and em dashes, and the
+# storyboard crosses a subprocess boundary as text.
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PYTHONUTF8=1 \
+    PYTHONIOENCODING=utf-8
+
 WORKDIR /app
 COPY pyproject.toml requirements.lock README.md /app/
 COPY src /app/src

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -332,3 +333,52 @@ def test_prompt_states_the_schema_contract_and_carries_the_chosen_payload(
     assert "8,123" not in aggregate.prompt
     assert "highlight_count" in aggregate.prompt
     assert "weekly" in aggregate.prompt
+
+
+def test_workspace_cleanup_failure_cannot_discard_a_good_storyboard(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The scratch directory is a context manager wrapping the successful return.
+
+    A raising __exit__ would replace a validated storyboard with an exception, so
+    the run would silently demote to the offline template and report the cleanup
+    error as the reason. Observed against the real CLI on Windows, and reachable
+    anywhere a handle outlives the child. Cleanup must never decide the outcome.
+    """
+    seen: dict[str, object] = {}
+    real = tempfile.TemporaryDirectory
+
+    def spy(*args: Any, **kwargs: Any) -> Any:
+        seen.update(kwargs)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr("video_runner.claude_provider.tempfile.TemporaryDirectory", spy)
+    recorder = _Recorder(_envelope(json.dumps(_storyboard_payload())))
+    monkeypatch.setattr("video_runner.claude_provider.subprocess.run", recorder)
+
+    result = generate_with_claude(PeriodType.DAILY, _summary(), _config(tmp_path))
+
+    assert isinstance(result.storyboard, Storyboard)
+    assert seen.get("ignore_cleanup_errors") is True
+
+
+def test_cli_output_is_decoded_as_utf8_regardless_of_container_locale(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Narration carries curly quotes and em dashes on essentially every run.
+
+    subprocess.run(text=True) without an explicit encoding decodes with the
+    locale's preferred encoding. A container whose locale resolves to ASCII
+    would raise UnicodeDecodeError inside _run_cli, which is not one of the
+    errors it translates, so every generation would fail. Pin the codec.
+    """
+    narration = " ".join(["word"] * 149) + " Today\u2019s\u2014steady"
+    recorder = _Recorder(_envelope(json.dumps(_storyboard_payload(narration=narration))))
+    monkeypatch.setattr("video_runner.claude_provider.subprocess.run", recorder)
+
+    result = generate_with_claude(PeriodType.DAILY, _summary(), _config(tmp_path))
+
+    assert "\u2019" in result.storyboard.narration
+    assert "\u2014" in result.storyboard.narration
+    assert recorder.calls[0]["encoding"] == "utf-8"
+    assert recorder.calls[0]["errors"] == "replace"

@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.2 - 2026-08-05
+
+Two defects found by running the real Claude Code CLI against the provider
+rather than only its mocks.
+
+- The scratch-workspace context manager wrapped the successful return, so a
+  raising `__exit__` discarded a validated storyboard and demoted the run to the
+  offline template while reporting the cleanup error as the reason. Cleanup
+  errors are now ignored and can no longer decide the outcome.
+- `subprocess.run(text=True)` decoded CLI output with the locale's preferred
+  encoding. Narration routinely carries curly quotes and em dashes, so a
+  container resolving to ASCII would raise `UnicodeDecodeError` inside
+  `_run_cli` — an error it does not translate — and fail every generation. The
+  codec is now pinned to UTF-8, and the image declares `LANG`, `LC_ALL`,
+  `PYTHONUTF8`, and `PYTHONIOENCODING`.
+- Both are covered by regression tests.
+- Rename the default branch to `main`, which every workflow's push trigger
+  already targeted; on `master` none of them ran on push.
+
 ## 0.1.1 - 2026-08-05
 
 First published image. The `v0.1.0` tag failed its pre-publish vulnerability

@@ -339,6 +339,11 @@ def _run_cli(
             # and would block outright on an inherited pipe that never closes.
             stdin=subprocess.DEVNULL,
             text=True,
+            # Pinned, not locale-derived. Narration routinely carries curly quotes
+            # and em dashes, so a container that resolves to ASCII would raise
+            # UnicodeDecodeError here and fail every generation.
+            encoding="utf-8",
+            errors="replace",
             timeout=config.timeout_seconds,
             check=False,
             env=child_environment(config, home),
@@ -390,7 +395,12 @@ def generate_with_claude(
     input_tokens = 0
     output_tokens = 0
     first_error = ""
-    with tempfile.TemporaryDirectory(prefix="video-runner-claude-") as raw_workspace:
+    # Cleanup must never decide the outcome. This context manager wraps the
+    # successful return, so a raising __exit__ would discard a valid storyboard
+    # and demote the run to the offline template with a misleading reason.
+    with tempfile.TemporaryDirectory(
+        prefix="video-runner-claude-", ignore_cleanup_errors=True
+    ) as raw_workspace:
         workspace = Path(raw_workspace)
         for attempt in range(2):
             active = prompt if attempt == 0 else _repair_prompt(prompt, first_error)
