@@ -24,3 +24,18 @@ mount. It is a real subscription credential and is treated as a secret:
 
 Revoke a leaked credential from your Claude account settings, delete the
 directory contents, and repeat the one-time login.
+
+## Vulnerability scanning and suppressions
+
+Every image build is scanned with Trivy at `HIGH,CRITICAL` and the pipeline
+fails on a finding. `.trivyignore` holds the only suppressions, currently eight
+CVEs in npm packages vendored inside `@anthropic-ai/claude-code`. They are
+suppressed because the image already pins the newest published release and the
+vendored tree cannot be patched downstream — not because the findings were
+judged unimportant. Each entry records why it is unreachable from this add-on.
+
+Two rules govern that file. Suppressions cover third-party vendored trees only:
+anything reachable from Python code under `src/` is fixed, never ignored. And
+the list is re-reviewed on every `claude-code` version bump, with a hard review
+date recorded in the file itself. Do not add an entry without a written
+reachability argument.

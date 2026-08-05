@@ -38,6 +38,7 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: "1"
           ignore-unfixed: true
+          trivyignores: .trivyignore
   publish:
     needs: [quality, scan]
     runs-on: ubuntu-24.04

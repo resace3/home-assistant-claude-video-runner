@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.1 - 2026-08-05
+
+First published image. The `v0.1.0` tag failed its pre-publish vulnerability
+scan and never produced a container, so no `0.1.0` image exists.
+
+- Upgrade `aiohttp` to 3.14.3 in `requirements.lock`, fixing CVE-2026-69244.
+  The 0.1.0 lock still pinned 3.14.1.
+- Expose `video_id_namespace` in the add-on options and schema. It was already
+  a `SchedulerOptions` field, so it silently defaulted and could not be cleared
+  from the Home Assistant UI.
+- Add `.trivyignore` covering eight CVEs in npm packages vendored inside
+  `@anthropic-ai/claude-code`, which pins the newest published release and
+  cannot be patched downstream. Each entry carries a reachability argument and
+  the file carries a review date. See `SECURITY.md`.
+- Replace a real Home Assistant entity identifier in the friendly-name test with
+  a synthetic one.
+
 ## 0.1.0 - 2026-08-05
 
 First release of the Claude-driven runner. This repository forks

@@ -1,0 +1,42 @@
+# Scoped vulnerability suppressions.
+#
+# Every entry below is a transitive dependency vendored INSIDE
+# @anthropic-ai/claude-code, which this image pins to the newest published
+# release (2.1.222). None of them can be fixed by upgrading: there is no later
+# claude-code release, and the vendored tree is not ours to patch. Suppression
+# is therefore the only alternative to a permanently red pipeline.
+#
+# Reachability from this add-on is nil for all of them. The CLI is invoked
+# once per generation with a prompt this repository constructs, and it runs
+# with all built-in tools, MCP, slash commands, settings sources and session
+# persistence disabled, as UID 10001, with no inbound network path. It never
+# parses attacker-supplied archives, globs, or certificates on our behalf.
+#
+# REVIEW BY 2026-11-05. Re-check on every claude-code bump: drop any entry the
+# new release fixes, and do not extend this file to cover our own dependencies.
+# Anything reachable from Python code in src/ must be fixed, never ignored.
+
+# brace-expansion - ReDoS / memory exhaustion. We pass no user-supplied brace
+# patterns; glob expansion is disabled along with the file tools.
+CVE-2026-13149
+CVE-2026-14257
+CVE-2026-69152
+
+# ip-address - parsing of untrusted IPv4/IPv6 input. No network input is parsed;
+# the add-on makes no inbound connections.
+CVE-2026-69192
+
+# picomatch - ReDoS via crafted extglob patterns. Reached only through the file
+# matching tools, which are disabled on every invocation.
+CVE-2026-33671
+
+# sigstore - certificateOIDs verification ignored. Used by claude-code's own
+# update-verification path, which this image never runs: the version is pinned
+# at build time and the container has no self-update mechanism.
+CVE-2026-48815
+
+# tar - DoS via gzip bomb / malformed header. Used by claude-code's installer
+# path, not at runtime. The image installs the package at build time from npm
+# over TLS and never extracts an archive during a generation run.
+CVE-2026-59873
+CVE-2026-59874
