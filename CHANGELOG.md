@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.4 - 2026-08-05
+
+Found on a live instance: the first Claude-written daily video rendered
+successfully for 60.65 seconds and was then discarded at the publish step.
+
+- `Storyboard.summary` allowed 400 characters, `BrowserVideo.description`
+  allowed 240, and `render.py` passed one straight into the other. Offline
+  template summaries were always short, so the mismatch never surfaced; a
+  model-written summary exceeded 240 and raised `ValidationError` after
+  encoding had finished, throwing away the whole bundle. The weekly video
+  passed only because its summary happened to be shorter.
+- `Storyboard.summary` is now bounded at 240 so an over-long summary fails
+  during storyboard validation, where the provider still has a retry with the
+  error fed back, rather than after the render.
+- The prompt advertised the old 400-character limit and now states 240.
+- `render.py` truncates defensively as well: a fully rendered video must never
+  be discarded over a description that is merely too long to display.
+
 ## 0.1.3 - 2026-08-05
 
 Found while verifying the add-on on a live Home Assistant Green.

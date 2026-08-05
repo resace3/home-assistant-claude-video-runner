@@ -54,7 +54,10 @@ class Storyboard(BaseModel):
     model_config = ConfigDict(extra="forbid")
     title: str = Field(min_length=1, max_length=80)
     period_type: PeriodType
-    summary: str = Field(max_length=400)
+    # Must not exceed BrowserVideo.description, which this becomes at publish
+    # time. Validating it here means an over-long summary is caught while the
+    # provider can still retry, instead of discarding an already-rendered video.
+    summary: str = Field(max_length=240)
     narration: str = Field(min_length=1, max_length=1800)
     scenes: list[Scene] = Field(min_length=3, max_length=10)
     safety_notes: list[str] = Field(default_factory=list, max_length=10)

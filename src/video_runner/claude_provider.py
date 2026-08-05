@@ -68,7 +68,7 @@ Return a single JSON object matching this schema. Unknown keys are rejected.
 {{
   "title": string, 1-80 chars,
   "period_type": "daily" | "weekly",
-  "summary": string, <=400 chars,
+  "summary": string, <=240 chars,   // shown as the video's description; keep it tight
   "narration": string, <=1800 chars,
   "scenes": [ Scene, ... ],            // 3-10 items
   "safety_notes": [string, ...],       // <=10 items, must be non-empty

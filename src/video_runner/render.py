@@ -299,7 +299,10 @@ def render_storyboard(
             id=identifier,
             type=storyboard.period_type,
             title=storyboard.title,
-            description=storyboard.summary,
+            # Truncated defensively. The schema already bounds this, but the video
+            # is fully rendered by now and must never be discarded over a summary
+            # that is merely too long to display.
+            description=storyboard.summary[:240],
             created_at=now,
             period_start=period_start,
             period_end=now,

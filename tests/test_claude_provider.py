@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from pydantic import ValidationError
 
 from video_runner.claude_provider import (
     ClaudeProviderError,
@@ -382,3 +383,26 @@ def test_cli_output_is_decoded_as_utf8_regardless_of_container_locale(
     assert "\u2014" in result.storyboard.narration
     assert recorder.calls[0]["encoding"] == "utf-8"
     assert recorder.calls[0]["errors"] == "replace"
+
+
+def test_summary_cannot_exceed_the_published_description_limit() -> None:
+    """Storyboard.summary becomes BrowserVideo.description verbatim at publish time.
+
+    Storyboard.summary allowed 400 characters while BrowserVideo.description
+    allows 240, and nothing bridged them. Template summaries were always short so
+    it never surfaced; a model-written one blew the limit and the ValidationError
+    fired after the video had already been encoded, discarding the whole bundle.
+    Observed on a live instance: the daily video rendered for 60.65s and was then
+    thrown away. The two bounds must stay equal.
+    """
+    from video_runner.schemas import BrowserVideo, Storyboard
+
+    assert (
+        Storyboard.model_fields["summary"].metadata[0].max_length
+        <= BrowserVideo.model_fields["description"].metadata[0].max_length
+    )
+
+    payload = _storyboard_payload()
+    payload["summary"] = "x" * 241
+    with pytest.raises(ValidationError):
+        Storyboard.model_validate(payload)
