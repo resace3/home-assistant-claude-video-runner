@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm@sha256:8a7e7cc04fd3e2bd787f7f24e22d5d119aa590d429b50c95dfe12b3abe52f48b
+FROM python:3.15-slim-bookworm@sha256:4e03260adeeebafccd084f3584e6b84823aba5651cfb53ef8a078ed441ddf9cd
 ARG BUILD_VERSION="dev"
 ARG BUILD_ARCH="aarch64|amd64"
 LABEL io.hass.version="${BUILD_VERSION}" \
